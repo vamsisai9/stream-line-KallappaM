@@ -1,50 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include "BMS_Sender.h"
+#include "BMS_DataSender.h"
 
-#define SIZE 50
-
-SensorData_tst* Init();
-
-
-
-SensorData_tst * init()
-{   static SensorData_tst sen[SIZE];
-    
-    for(int i=0;i<SIZE;i++)
-    {
-       sen->BatteryTemp[i] = rand()%50;
-       sen->SensorValue[i] = rand()%50;
-       
-    }
-    return sen;
+void PrintBatteryData(float BatteryTemp,float BatterySoc)
+{
+  printf("Temprature: = %f - Soc: = %f\n",BatteryTemp,BatterySoc);
 }
 
-
+DataStatus_en GenerateSensorData(SensorData_st *SensorData,int DataSize)
+{
+  DataStatus_en FinalStatus = DATA_GENERATION_FAILED;
   
-char* passToBuffer()
-{
-    SensorData_tst *Mid;
-    char buffer[SIZE][SIZE];
-    static char ReturnedBuffer[SIZE];
-    Mid = init();
-    printf("Sensor-Temperature , Sensor-Value\n") ;
-    for(int i=0;i<SIZE;i++)
+  if((SensorData != NULL) && (DataSize))
+  {
+    FinalStatus = DATA_GENERATION_OK;
+    
+    for(int Count=0;Count<DataSize;Count++)
     {
-       //printf(" %d : %d , %d \n",i,*(g->a+i),*(g->b+i));
-       sprintf(buffer[i], " %d , %d \n", *(Mid->BatteryTemp+i),*(Mid->SensorValue+i));
-      //ReturnedBuffer = (char*)buffer[i];
-     
-       printf("%s", buffer[i]);
+          SensorData->Temprature[Count] = rand()%TEMP_RANGE;
+          SensorData->Soc[Count] = rand()%SOC_RANGE;
+          PrintBatteryData(SensorData->Temprature[Count],SensorData->Soc[Count]);
     }
-    
-    return ReturnedBuffer;
-    
+  
+  }
+  
+  return(FinalStatus);
 }
-int main()
+    
+
+DataStatus_en SendBatteryParameters(SensorData_st *SensorData,int DataSize)
 {
-    (void)passToBuffer();
-    return 0;
+  DataStatus_en FinalStatus = DATA_SENDING_FAILED ;
+  
+  if(SensorData != NULL)
+  {
+    FinalStatus = GenerateSensorData(SensorData,DataSize);
+    if(FinalStatus)
+    {  
+      FinalStatus = DATA_SENDING_OK;
+    }
+  }
+  return(FinalStatus);
 }
